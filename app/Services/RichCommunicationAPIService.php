@@ -4,6 +4,8 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\Log;
+
 
 
 class RichCommunicationAPIService
@@ -75,16 +77,9 @@ class RichCommunicationAPIService
 
                 return $response->json();
 
-            } catch (RequestException $e) {
-                // Handle Guzzle HTTP request exception
-
-                \Log::error('HTTP request failed: ' . $e->getMessage());
-                return ['error' => 'API request failed', 'message' => $e->getMessage()];
-
             } catch (\Exception $e) {
-                // Handle other exceptions
-                \Log::error('Exception during API request: ' . $e->getMessage());
-                return ['error' => 'API request failed'];
+                // Handle exception (log, throw, etc.)
+                return false;
             }
      
     }
