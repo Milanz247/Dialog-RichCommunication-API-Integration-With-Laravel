@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Client\RequestException;
+
 
 class RichCommunicationAPIService
 {
@@ -57,14 +59,33 @@ class RichCommunicationAPIService
 
     protected function sendRequest($url, $payload)
     {
-        date_default_timezone_set('Asia/Colombo');
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
-            'USER' => $this->apiUsername,
-            'DIGEST' => md5($this->apiPassword),
-            'CREATED' => now()->format('Y-m-d\TH:i:s'),
-        ])->post($url, $payload);
 
-        return $response->json();
+        try {
+
+            date_default_timezone_set('Asia/Colombo');
+
+                $response = Http::withHeaders([
+
+                    'Content-Type' => 'application/json',
+                    'USER' => $this->apiUsername,
+                    'DIGEST' => md5($this->apiPassword),
+                    'CREATED' => now()->format('Y-m-d\TH:i:s'),
+                    
+                ])->post($url, $payload);
+
+                return $response->json();
+
+            } catch (RequestException $e) {
+                // Handle Guzzle HTTP request exception
+
+                \Log::error('HTTP request failed: ' . $e->getMessage());
+                return ['error' => 'API request failed', 'message' => $e->getMessage()];
+
+            } catch (\Exception $e) {
+                // Handle other exceptions
+                \Log::error('Exception during API request: ' . $e->getMessage());
+                return ['error' => 'API request failed'];
+            }
+     
     }
 }
